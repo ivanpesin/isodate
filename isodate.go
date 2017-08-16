@@ -23,8 +23,8 @@ var epoch = flag.Bool("s", false, "show unix epoch")
 var week = flag.Bool("w", false, "show week number")
 var verbose = flag.Bool("v", false, "show verbose output")
 var replace = flag.Bool("r", false, "replace epoch with timestamp")
-var delim = flag.String("d", ",", "show unix epoch")
-var fno = flag.Int("f", 1, "show unix epoch")
+var delim = flag.String("d", ",", "delimeter for epoch replace")
+var fno = flag.Int("f", 1, "field number for epoch replace")
 
 func formatTimeStamps() {
 	tsInfo["utc"] = t.UTC().Format("2006-01-02T15:04:05Z")
