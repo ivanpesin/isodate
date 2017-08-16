@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"flag"
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -17,6 +19,7 @@ var loc = flag.Bool("l", false, "show local timestamp")
 var epoch = flag.Bool("s", false, "show unix epoch")
 var week = flag.Bool("w", false, "show week number")
 var verbose = flag.Bool("v", false, "show verbose output")
+var replace = flag.Bool("r", false, "replace epoch with timestamp")
 var delim = flag.String("d", ",", "show unix epoch")
 var fno = flag.Int("f", 1, "show unix epoch")
 
@@ -55,9 +58,50 @@ func showVerbose() {
 	fmt.Printf("%s", buf)
 }
 
+func replaceEpoch() {
+
+	s := bufio.NewScanner(os.Stdin)
+	lno := 0
+	cacheEpoch := ""
+	cacheTS := ""
+
+	for s.Scan() {
+		lno++
+		line := s.Text()
+		f := strings.Split(line, *delim)
+		if *fno > len(f) {
+			fmt.Fprintf(os.Stderr, "Error: line %d has only %d fields < %d\n", lno, len(f), *delim)
+			continue
+		}
+
+		if f[*fno-1] != cacheEpoch {
+			ts, err := strconv.ParseInt(f[*fno-1], 10, 64)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: line %d: expect epoch, but found: %s\n", lno, f[*fno-1])
+				continue
+			}
+
+			cacheEpoch = f[*fno-1]
+			if *loc {
+				cacheTS = time.Unix(ts, 0).Format("2006-01-02T15:04:05-0700")
+			} else {
+				cacheTS = time.Unix(ts, 0).UTC().Format("2006-01-02T15:04:05Z")
+			}
+		}
+		f[*fno-1] = cacheTS
+
+		fmt.Printf("%s\n", strings.Join(f, *delim))
+	}
+}
+
 func main() {
 
 	flag.Parse()
+
+	if *replace {
+		replaceEpoch()
+		os.Exit(0)
+	}
 
 	if len(flag.Args()) > 0 {
 		s, err := strconv.ParseInt(flag.Arg(0), 10, 64)
