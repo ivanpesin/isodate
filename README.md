@@ -47,8 +47,18 @@ possible to specify epoch time for which to displat timestamps
 ## Examples:
 
 ### Replace mode
-    $ cat log_with_epoch_ts.log | isodate -r -d, -f2
-    $ cat log_with_epoch_ts.log | isodate -r -d, -f2 -l
+    $ cat log_with_epoch_ts.log
+    1503272692,batch=237,status=fail
+    1503272692,batch=238,status=ok
+    1503272693,batch=239,status=ok
+    $ cat log_with_epoch_ts.log | isodate -r -d , -f 2
+    2017-08-20T23:44:52Z,batch=237,status=fail
+    2017-08-20T23:44:52Z,batch=238,status=ok
+    2017-08-20T23:44:53Z,batch=239,status=ok
+    $ cat log_with_epoch_ts.log | isodate -r -d , -f 2 -l
+    2017-08-20T19:44:52-0400,batch=237,status=fail
+    2017-08-20T19:44:52-0400,batch=238,status=ok
+    2017-08-20T19:44:53-0400,batch=239,status=ok
 
 ### Timestamp mode
 
