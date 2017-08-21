@@ -21,6 +21,8 @@ var utc = flag.Bool("u", false, "show UTC timestamp")
 var loc = flag.Bool("l", false, "show local timestamp")
 var epoch = flag.Bool("s", false, "show unix epoch")
 var week = flag.Bool("w", false, "show week number")
+var offset = flag.Bool("o", false, "show offset")
+var tz = flag.Bool("z", false, "show timezone")
 var verbose = flag.Bool("v", false, "show verbose output")
 var replace = flag.Bool("r", false, "replace epoch with timestamp")
 var delim = flag.String("d", ",", "delimeter for epoch replace")
@@ -35,6 +37,56 @@ func formatTimeStamps() {
 	tsInfo["tz"] = t.Format("MST")
 }
 
+func showUsage() {
+	msg :=
+		`isodate -- print timestamps and convert epoch to human-readable form.
+
+Usage:
+	isodate [ -r [-d <delim>] [-f <fno>] [-l] | <selector> [<epoch>]]
+
+	Replace mode
+	-r      read from stdin and replace epoch timestamp in specified 
+			position. Replaces with UTC timestamp, unless '-l'
+			specified to use local timestamp.
+	-d <delim>
+			use <delim> as a field separator. Default: ','
+	-f <fno>
+			replace epoch timestamp in field <fno>. First field has
+			number 1, which is also a default value.
+
+	Timestamps mode
+	-u      show UTC timestamp    
+	-l      show local timestamp
+	-e      show epoch timestamp
+	-o      show local offset
+	-z      show local timezone
+	-w      show ISO week (always in UTC)
+	-v      show verbose multiline output with all timestmaps
+
+	If no selectors specified, timestamps are shown in one line, 
+	separated by space. Selectors are mutually exclusive.
+
+	If <epoch> is specified after selectors, it is used instead of
+	current time for all timestamps.
+
+Examples:
+
+	Replace mode:
+	$ cat log_with_epoch_ts.log | isodate -r -d, -f2
+	$ cat log_with_epoch_ts.log | isodate -r -d, -f2 -l
+
+	Timestamp mode:
+	$ isodate
+	2017-08-20T17:52:48Z 2017-08-20T13:52:48-0400 1503251568 EDT 2017-W33-7
+	$ isodate -u
+	2017-08-20T17:53:24Z
+	$ isodate -l 1000000000
+	2001-09-08T21:46:40-0400
+`
+	fmt.Print(msg)
+
+}
+
 func showOneline() {
 	buf := bytes.NewBufferString("")
 	switch {
@@ -46,6 +98,10 @@ func showOneline() {
 		buf.WriteString(tsInfo["epoch"])
 	case *week:
 		buf.WriteString(tsInfo["week"])
+	case *offset:
+		buf.WriteString(tsInfo["offset"])
+	case *tz:
+		buf.WriteString(tsInfo["timezone"])
 	default:
 		buf.WriteString(fmt.Sprintf("%s %s %s %s %s",
 			tsInfo["utc"],
@@ -106,7 +162,7 @@ func replaceEpoch() {
 }
 
 func main() {
-
+	flag.Usage = showUsage
 	flag.Parse()
 
 	// replace epoch in input
@@ -140,5 +196,4 @@ func main() {
 	}
 
 	showOneline()
-
 }

@@ -87,8 +87,8 @@ Usage:
 Examples:
 
     Replace mode:
-    $ cat log_with_epoch_ts.log | isodate -r -d, -f2
-    $ cat log_with_epoch_ts.log | isodate -r -d, -f2 -l
+    $ cat log_with_epoch_ts.log | isodate -r -d , -f 2
+    $ cat log_with_epoch_ts.log | isodate -r -d , -f 2 -l
 
     Timestamp mode:
     $ isodate
